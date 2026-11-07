@@ -205,7 +205,7 @@ JSON 转 TypeScript、JSON 转 CSV、CSV 转 JSON、JSON 转 YAML、CSS 压缩�
 
 页面头部同时写入了 Open Graph 与 Twitter Card 元信息（`og:type/site_name/title/description/url/image` + `twitter:card=summary_large_image`），分享出去会渲染成带封面的大卡片。页脚为「图形标 + 站名 + 版权行 + 隐私说明」的两栏结构，版权年份由 `js/main.js` 的 `bindFooterYear()` 写入当前年份，不需要每年改 HTML。
 
-> **部署后必做**：把 `index.html` 里 4 处 `https://your-domain.com` 换成你的实际域名（`canonical`、`og:url`、`og:image`、`twitter:image`）。OG 协议要求绝对地址，用相对路径时部分平台抓不到图。改完可用各平台的调试工具复核：Facebook Sharing Debugger、Twitter Card Validator，或直接发一条私聊看预览。
+> **域名已固定**：`index.html` 中 4 处绝对地址（`canonical`、`og:url`、`og:image`、`twitter:image`）均已指向 `https://tools.lovou.pw`。OG 协议要求绝对地址，用相对路径时部分平台抓不到图；若日后更换域名，这 4 处需同步修改。改完可用各平台的调试工具复核：Facebook Sharing Debugger、Twitter Card Validator，或直接发一条私聊看预览。
 
 ---
 
@@ -255,10 +255,10 @@ python3 -m http.server 8080
 
 - **无需任何服务端配置**：没有 Node 运行时、没有环境变量、没有数据库、不需要 `_redirects` 或 `_headers`。
 - 路由采用 `#/tool/xxx` 的 hash 形式，刷新任意工具页都由 `index.html` 承载，不会出现 404。
-- 可选：在 **Custom domains** 绑定自己的域名，Cloudflare 会自动签发 HTTPS 证书（Web Crypto 需要 https 或 localhost）。
-- 绑定域名后记得回填 OG 的绝对地址（见上一节「品牌资源与分享卡片」），否则分享卡片没有封面图。
+- 自定义域名：在 **Custom domains** 绑定 `tools.lovou.pw`，Cloudflare 会自动签发 HTTPS 证书（Web Crypto 需要 https 或 localhost）。
+- 本项目的 OG 绝对地址已按 `https://tools.lovou.pw` 预填（见上一节「品牌资源与分享卡片」），自定义域名生效后无需再改；若换域名则需同步回填。
 - `site.webmanifest` 与 `assets/` 都是普通静态文件，无需额外配置 MIME 类型，Cloudflare Pages 会按扩展名正确返回。
-- 若希望构建产物更干净，上传前可排除 `.git/`、`.codebuddy/` 等无关目录（不影响运行）。
+- 若希望上传目录更干净，可排除 `.git/`、`.workbuddy/` 等无关目录（不影响运行）。
 
 ---
 
