@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>集成工具大全 · 纯本地运行的在线工具箱</title>
+  <meta name="description" content="308 款在线工具：JSON 格式化、Base64、时间戳转换、正则测试、二维码、单位换算、贷款与个税、图片压缩、JWT / TOTP、二十四节气、Markdown 预览、数独生成、日志解析等，全部在浏览器本地运行，不上传任何数据。">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#f4f5fa">
+  <meta name="application-name" content="集成工具大全">
+
+  <!-- 站点图标：SVG 优先（矢量，任意缩放不糊），ICO 兜底，iOS 用 PNG -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!--
+    Open Graph / Twitter Card 分享卡片
+    部署后请把下面 4 处 https://your-domain.com 替换成你的实际域名（必须是绝对地址，
+    社交平台不会自动补全相对路径），否则分享出去可能抓不到封面图。
+  -->
+  <link rel="canonical" href="https://your-domain.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="集成工具大全">
+  <meta property="og:title" content="集成工具大全 · 308 款纯本地在线工具">
+  <meta property="og:description" content="JSON 格式化、Base64、时间戳、二维码、图片压缩、JWT / TOTP、数独、日志解析…… 308 款高频工具即开即用，全部在浏览器本地运行，不收集、不上传任何数据。">
+  <meta property="og:url" content="https://your-domain.com/">
+  <meta property="og:image" content="https://your-domain.com/assets/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="集成工具大全 —— 308 款纯前端工具，全部在浏览器本地运行">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="集成工具大全 · 308 款纯本地在线工具">
+  <meta name="twitter:description" content="308 款高频工具即开即用，全部在浏览器本地运行，不收集、不上传任何数据。">
+  <meta name="twitter:image" content="https://your-domain.com/assets/og-image.png">
+  <meta name="twitter:image:alt" content="集成工具大全 —— 308 款纯前端工具">
+
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    /* 在样式生效前确定主题，避免刷新时闪白/闪黑 */
+    (function () {
+      try {
+        var saved = localStorage.getItem('toolbox.theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#app">跳到主要内容</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#/" aria-label="集成工具大全，返回首页">
+        <img class="brand-logo" src="assets/logo-mark.svg" alt="" width="34" height="34" decoding="async">
+        <span class="brand-name">集成工具大全</span>
+      </a>
+
+      <div class="header-actions">
+        <span class="privacy-pill" title="所有处理均在本地浏览器完成">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="10" width="16" height="11" rx="2.5"/>
+            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+          </svg>
+          <span class="privacy-pill-text">本地运行</span>
+        </span>
+
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="切换深色 / 浅色主题" title="切换深色 / 浅色主题">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.5 1.5M17.3 17.3l1.5 1.5M18.8 5.2l-1.5 1.5M6.7 17.3l-1.5 1.5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="app" tabindex="-1"></main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img class="footer-logo" src="assets/logo-mark.svg" alt="" width="28" height="28" loading="lazy" decoding="async">
+        <div class="footer-brand-text">
+          <span class="footer-name">集成工具大全</span>
+          <span class="footer-copy">© <span id="footerYear">2026</span> · 保留所有权利</span>
+        </div>
+      </div>
+      <div class="footer-meta">
+        <p class="footer-main">所有计算与处理均在浏览器本地完成 · 不收集、不上传任何数据</p>
+        <p class="footer-sub">纯静态站点 · 零依赖 · 可直接部署到 Cloudflare Pages</p>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toastRoot" class="toast-root" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <noscript>
+    <div class="noscript">本站工具依赖 JavaScript 运行，请在浏览器设置中启用后刷新页面。</div>
+  </noscript>
+
+  <!-- 主逻辑（含工具配置表与公共 UI 能力） -->
+  <script src="js/main.js"></script>
+
+  <!--
+    工具模块（js/tools/*.js）无需在此逐个引入：
+    js/main.js 中的 TOOLS 配置里声明了 script 路径，首次进入对应工具时按需加载。
+    新增工具只需「新建模块文件 + 在 TOOLS 数组加一条配置」。
+  -->
+</body>
+</html>
