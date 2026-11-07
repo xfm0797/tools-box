@@ -334,6 +334,19 @@ img {
   color: var(--text-3);
 }
 
+/* 版权行里的作者链接（XFM → GitHub 仓库） */
+.footer-copy .footer-link {
+  color: var(--text-2);
+  text-decoration: none;
+  border-bottom: 1px dashed color-mix(in srgb, var(--text-3) 55%, transparent);
+  transition: color 0.18s, border-bottom-color 0.18s;
+}
+
+.footer-copy .footer-link:hover {
+  color: var(--primary);
+  border-bottom-color: color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
 .footer-meta {
   text-align: right;
 }
