@@ -1552,6 +1552,65 @@ mark {
   max-width: min(92vw, 460px);
 }
 
+/* 回到顶部：右下角悬浮，滚动超过一屏后淡入（visibility 保证隐藏时不可聚焦） */
+.back-to-top {
+  position: fixed;
+  right: max(22px, env(safe-area-inset-right, 0px) + 18px);
+  bottom: max(26px, env(safe-area-inset-bottom, 0px) + 20px);
+  z-index: 90;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-2);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.92);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s,
+    color 0.18s, border-color 0.18s, background 0.18s;
+}
+
+.back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.back-to-top:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+}
+
+.back-to-top:active {
+  transform: scale(0.92);
+}
+
+.back-to-top svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 719px) {
+  .back-to-top {
+    right: max(14px, env(safe-area-inset-right, 0px) + 12px);
+    bottom: max(18px, env(safe-area-inset-bottom, 0px) + 14px);
+    width: 40px;
+    height: 40px;
+  }
+
+  .back-to-top svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .toast {
   display: inline-flex;
   align-items: center;

@@ -141,7 +141,7 @@ JSON 转 TypeScript、JSON 转 CSV、CSV 转 JSON、JSON 转 YAML、CSS 压缩�
 ├── css/
 │   └── style.css           # 全部样式：设计变量、布局、组件、深色主题、响应式
 ├── js/
-│   ├── main.js             # 308 条工具配置、hash 路由、依赖 + 按需加载、搜索筛选、主题、Toast、公共能力
+│   ├── main.js             # 308 条工具配置、hash 路由、依赖 + 按需加载、搜索筛选、主题、Toast、回到顶部、公共能力
 │   └── tools/
 │       ├── _kit.js         # 共享 UI 工装（文本 / 表单 / 表格 / 画布 / 安全随机 / 复制），批量工具都依赖它
 │       ├── json.js         # ┐

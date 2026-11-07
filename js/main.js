@@ -825,6 +825,36 @@
     if (el) el.textContent = String(new Date().getFullYear());
   }
 
+  /* 回到顶部：滚动超过一屏后淡入，点击平滑回顶（遵循「减少动效」偏好） */
+  function bindBackToTop() {
+    var button = document.getElementById('backToTop');
+    if (!button) return;
+
+    var ticking = false;
+
+    function sync() {
+      ticking = false;
+      var threshold = Math.max(320, window.innerHeight * 0.6);
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      button.classList.toggle('is-visible', y > threshold);
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(sync);
+    }
+
+    button.addEventListener('click', function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    sync();
+  }
+
   /* =========================================================================
    * 四、首页渲染（搜索 + 分类筛选 + 卡片网格）
    * ====================================================================== */
@@ -1098,6 +1128,7 @@
   function start() {
     bindThemeToggle();
     bindFooterYear();
+    bindBackToTop();
     window.addEventListener('hashchange', route);
 
     /* 全局快捷键："/" 聚焦搜索框，Esc 清空（仅在首页存在搜索框时生效） */
