@@ -3268,3 +3268,31 @@ mark {
 .sudoku-table tr:last-child td {
   border-bottom: none;
 }
+
+/* 多段结果（URL 拆解等）：块之间加分隔 */
+.result-block + .result-block {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border);
+}
+
+/* Code 39 条形码画布：白底卡片，横向可滚动 */
+.barcode-box {
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  overflow-x: auto;
+}
+
+.barcode-box .barcode-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .barcode-box {
+    padding: 10px;
+  }
+}
