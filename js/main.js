@@ -474,6 +474,125 @@
     tool('rest-cheatsheet', 'REST 方法速查', '网络工具', 'GET/POST/PUT 等语义与幂等性对照。', 'server', 'rest 方法 http 幂等 get put 语义', 'js/tools/pack-net3.js'),
     tool('mailto-builder', 'mailto 链接', '网络工具', '生成带主题正文的邮件唤起链接。', 'link', 'mailto 邮件 链接 联系我们 主题', 'js/tools/pack-net3.js'),
     tool('wifi-qr', 'WiFi 二维码文本', '网络工具', '生成扫码连 WiFi 的 WIFI: 字符串。', 'network', 'wifi 二维码 连接 扫码 网络 配置', 'js/tools/pack-net3.js'),
+
+    /* ===== 第四批扩展（100 款） ===== */
+    /* 文本处理 12 款 */
+    tool('palindrome-check', '回文检测', '文本处理', '逐行判断是否回文，可忽略大小写与标点。', 'list', '回文 palindrome 对称 检测', 'js/tools/pack-text4.js'),
+    tool('char-counter', '字符统计概览', '文本处理', '字符、字数、句数、字节与高频字符一次看清。', 'type', '字数 统计 字符 词数 高频', 'js/tools/pack-text4.js'),
+    tool('line-stats', '行统计', '文本处理', '最长行、平均行长、中位数与行长分布。', 'list', '行 统计 长度 分布 最长', 'js/tools/pack-text4.js'),
+    tool('line-shuffle', '行乱序', '文本处理', '按行随机打乱顺序，适合名单与题目洗牌。', 'shuffle', '乱序 打乱 随机 行 洗牌', 'js/tools/pack-text4.js'),
+    tool('keyword-density', '关键词密度', '文本处理', '统计中英关键词频次与密度，辅助 SEO 与文案自查。', 'search', '关键词 密度 词频 seo 分析', 'js/tools/pack-text4.js'),
+    tool('readability-score', '可读性评分', '文本处理', 'Flesch 阅读难度与句长统计，判断文案是否好读。', 'type', '可读性 flesch 阅读 难度 句长', 'js/tools/pack-text4.js'),
+    tool('text-quote', '引用包裹', '文本处理', '给多行文本加引用前缀，一键生成 Markdown 引用块。', 'type', '引用 quote markdown 前缀', 'js/tools/pack-text4.js'),
+    tool('text-chunk', '文本分块', '文本处理', '按字符或单词切分成固定长度的小块。', 'scissors', '分块 切分 分段 chunk 截断', 'js/tools/pack-text4.js'),
+    tool('invisible-chars', '不可见字符清理', '文本处理', '揪出零宽空格、BOM、全角空格并一键清理。', 'eye', '零宽 不可见 空格 bom 清理 乱码', 'js/tools/pack-text4.js'),
+    tool('text-replace-batch', '批量查找替换', '文本处理', '多组查找替换规则一次执行，支持正则与忽略大小写。', 'type', '替换 批量 正则 replace 查找', 'js/tools/pack-text4.js'),
+    tool('line-diff-simple', '行集合差异', '文本处理', '比较两份清单的独有行与共有行。', 'diff', '差异 对比 行 集合 清单', 'js/tools/pack-text4.js'),
+    tool('cjk-pad', '中英混排对齐', '文本处理', '按显示宽度补齐，汉字算两格，等宽对齐不乱。', 'grid', '对齐 中文 全角 宽度 补空格', 'js/tools/pack-text4.js'),
+
+    /* 编码解码 12 款 */
+    tool('base16', 'Base16 十六进制', '编码解码', '文本与十六进制互转，可加 0x 前缀与空格分隔。', 'hash', 'base16 hex 十六进制 编码', 'js/tools/pack-codec4.js'),
+    tool('base36', 'Base36 编解码', '编码解码', '把 UTF-8 字节整体转成 0-9a-z 的短串。', 'hash', 'base36 编码 短id 进制', 'js/tools/pack-codec4.js'),
+    tool('mime-encoded-word', '邮件主题编码', '编码解码', '中文主题转 RFC 2047 编码字，或反向解码。', 'code', '邮件 主题 编码 rfc2047 mime 乱码', 'js/tools/pack-codec4.js'),
+    tool('html-entity', 'HTML 实体编解码', '编码解码', '特殊字符与中文转数字实体，或反向还原。', 'code', 'html 实体 entity 转义 编码', 'js/tools/pack-codec4.js'),
+    tool('unicode-escape', 'Unicode 转义', '编码解码', '文本与 \\uXXXX / \\u{XXXXX} 转义序列互转。', 'code', 'unicode 转义 u4 码点 字面量', 'js/tools/pack-codec4.js'),
+    tool('c-escape', 'C 风格转义', '编码解码', '处理 \\n \\t \\\\ 等转义，适合写进代码字符串。', 'code', 'c 转义 字符串 换行 反斜杠', 'js/tools/pack-codec4.js'),
+    tool('uuencode', 'UUEncode 编解码', '编码解码', '老式邮件附件编码，3 字节转 4 个可打印字符。', 'code', 'uuencode uudecode 编码 邮件 附件', 'js/tools/pack-codec4.js'),
+    tool('caesar-brute', '凯撒暴力破解', '编码解码', '一次列出 26 种位移结果，肉眼找出明文。', 'lock', '凯撒 破解 位移 暴力 密码', 'js/tools/pack-codec4.js'),
+    tool('byte-frequency', '字节频率分析', '编码解码', '统计各字节出现次数与信息熵，判断数据特征。', 'chart', '字节 频率 熵 分析 统计', 'js/tools/pack-codec4.js'),
+    tool('mojibake-fix', '乱码修复', '编码解码', '尝试 UTF-8 / GBK 反向还原，救回乱码文本。', 'eye', '乱码 修复 编码 gbk utf8 还原', 'js/tools/pack-codec4.js'),
+    tool('url-part-encode', 'URL 分段编码', '编码解码', '区分 encodeURI 与 Component，避免多编码。', 'link', 'url 编码 参数 encodeuri component', 'js/tools/pack-codec4.js'),
+    tool('rot47', 'ROT47 变形', '编码解码', '可打印 ASCII 的 47 位位移，自反可逆。', 'lock', 'rot47 位移 变形 加密 ascii', 'js/tools/pack-codec4.js'),
+
+    /* 时间日期 12 款 */
+    tool('date-valid', '日期合法性校验', '时间日期', '批量检查日期是否存在，含闰年与月末天数。', 'calendar', '日期 校验 合法 闰年 月末', 'js/tools/pack-time4.js'),
+    tool('timezone-diff', '两时区时差', '时间日期', '对照两个时区的当前时间与偏移，自动处理夏令时。', 'clock', '时区 时差 对照 夏令时 utc', 'js/tools/pack-time4.js'),
+    tool('unix-multi', '时间戳多格式', '时间日期', '一次给出秒、毫秒、ISO、RFC 与相对时间。', 'clock', '时间戳 unix 多格式 iso 相对', 'js/tools/pack-time4.js'),
+    tool('date-format-custom', '自定义日期格式', '时间日期', '用 YYYY MM DD HH 等占位符拼出任意格式。', 'calendar', '格式化 模板 日期 yyyy mm dd', 'js/tools/pack-time4.js'),
+    tool('day-of-year', '年积日', '时间日期', '一年中的第几天、剩余天数与年度进度。', 'calendar', '年积日 doy 第几天 进度', 'js/tools/pack-time4.js'),
+    tool('work-hours', '工时计算', '时间日期', '上下班时间算有效工时、加班差与月度合计。', 'clock', '工时 上下班 打卡 加班 计算', 'js/tools/pack-time4.js'),
+    tool('timestamp-units', '时间戳单位换算', '时间日期', '秒、毫秒、微秒、纳秒之间互相换算。', 'clock', '时间戳 毫秒 微秒 纳秒 单位', 'js/tools/pack-time4.js'),
+    tool('date-parse', '日期智能解析', '时间日期', '识别多种日期写法并统一成标准格式。', 'calendar', '解析 日期 识别 格式 智能', 'js/tools/pack-time4.js'),
+    tool('date-diff-exact', '日期精确差值', '时间日期', '年月日差值、总天数与工作日统计。', 'calendar', '日期 差值 工作日 天数 相差', 'js/tools/pack-time4.js'),
+    tool('weekday-info', '星期与周次', '时间日期', '星期几、是否周末、ISO 周次与本周起止。', 'calendar', '星期 周次 周末 iso 周', 'js/tools/pack-time4.js'),
+    tool('range-overlap', '时间段重叠', '时间日期', '判断两个时间段是否冲突并算出重叠时长。', 'clock', '时间段 重叠 冲突 区间', 'js/tools/pack-time4.js'),
+    tool('moon-phase', '月相与月龄', '时间日期', '按朔望月周期推算月相、月龄与照亮比例。', 'calendar', '月相 月龄 满月 新月 天文', 'js/tools/pack-time4.js'),
+
+    /* 计算换算 14 款 */
+    tool('bmr', '基础代谢率', '计算换算', 'Mifflin-St Jeor 公式估算每日静息消耗。', 'chart', 'bmr 基础代谢 热量 卡路里', 'js/tools/pack-calc4.js'),
+    tool('tdee', '每日总消耗', '计算换算', '按活动强度算 TDEE，给出减脂增肌热量目标。', 'chart', 'tdee 总消耗 热量 减脂 增肌', 'js/tools/pack-calc4.js'),
+    tool('body-fat', '体脂率估算', '计算换算', '美国海军围度公式，输入颈腰臀围即可。', 'percent', '体脂 体脂率 围度 navy', 'js/tools/pack-calc4.js'),
+    tool('ideal-weight', '标准体重', '计算换算', '四种经典公式 + 健康 BMI 区间对照。', 'ruler', '标准体重 理想体重 devine bmi', 'js/tools/pack-calc4.js'),
+    tool('water-intake', '每日饮水量', '计算换算', '按体重、运动量与气温估算建议饮水。', 'chart', '饮水 喝水 每日 补水', 'js/tools/pack-calc4.js'),
+    tool('fuel-cost', '油费计算', '计算换算', '按里程、百公里油耗与油价算油费与人均分摊。', 'chart', '油费 油耗 油钱 自驾 分摊', 'js/tools/pack-calc4.js'),
+    tool('electricity-cost', '电费计算', '计算换算', '功率与时长算出度数、日/月/年电费。', 'chart', '电费 度数 功率 电耗 kwh', 'js/tools/pack-calc4.js'),
+    tool('paint-calc', '涂料用量', '计算换算', '按面积、遍数、遮盖率算涂料升数与桶数。', 'brush', '涂料 乳胶漆 用量 刷墙 装修', 'js/tools/pack-calc4.js'),
+    tool('tile-calc', '瓷砖数量', '计算换算', '铺贴面积算片数，含损耗与整片排版。', 'grid', '瓷砖 片数 装修 铺贴 损耗', 'js/tools/pack-calc4.js'),
+    tool('loan-compare', '还款方式对比', '计算换算', '等额本息与等额本金逐项对比，看清利息差。', 'percent', '房贷 等额本息 等额本金 月供 利息', 'js/tools/pack-calc4.js'),
+    tool('savings-goal', '储蓄目标测算', '计算换算', '给定目标与年限，反推每月需要存多少钱。', 'percent', '储蓄 目标 每月 存钱 理财', 'js/tools/pack-calc4.js'),
+    tool('roi', '投资回报率', '计算换算', 'ROI 与年化 CAGR 一起算，适合横向比较。', 'chart', 'roi 回报率 投资 收益 年化', 'js/tools/pack-calc4.js'),
+    tool('cagr', '年化复合增长率', '计算换算', '由首尾值算 CAGR，附 72 法则翻倍年数。', 'chart', 'cagr 年化 增长 复利 72法则', 'js/tools/pack-calc4.js'),
+    tool('overtime-pay', '加班费计算', '计算换算', '按 1.5 / 2 / 3 倍计算加班费与月总收入。', 'clock', '加班费 加班 工资 倍率 劳动法', 'js/tools/pack-calc4.js'),
+
+    /* 图片处理 8 款 */
+    tool('img-info', '图片信息速览', '图片处理', '尺寸、宽高比、百万像素与打印尺寸一次看清。', 'image', '图片 信息 尺寸 分辨率 像素', 'js/tools/pack-image4.js'),
+    tool('img-datauri', '图片转 Data URI', '图片处理', '生成可直接内联的 Base64 字符串并显示体积。', 'image', 'datauri base64 内联 图片', 'js/tools/pack-image4.js'),
+    tool('img-placeholder', '占位图生成', '图片处理', '指定尺寸、颜色与文字，导出自定义占位图。', 'image', '占位图 placeholder 生成 图片', 'js/tools/pack-image4.js'),
+    tool('img-tint', '图片单色蒙版', '图片处理', '给照片叠加主题色，四种混合模式可调强度。', 'palette', '蒙版 色调 tint 滤镜 主题色', 'js/tools/pack-image4.js'),
+    tool('img-frame', '图片加相框', '图片处理', '留白边框 + 内描边 + 投影，适合发图配文。', 'image', '相框 边框 留白 投影 图片', 'js/tools/pack-image4.js'),
+    tool('img-strip-meta', '去除图片元数据', '图片处理', '重绘导出，清掉 EXIF、GPS 与相机信息。', 'shield', 'exif 元数据 隐私 去除 图片', 'js/tools/pack-image4.js'),
+    tool('img-trim', '图片自动去白边', '图片处理', '按四角颜色自动裁掉纯色留白，可留边距。', 'scissors', '去白边 裁剪 留白 扫描件', 'js/tools/pack-image4.js'),
+    tool('img-scale-percent', '按百分比缩放', '图片处理', '输入 25% / 50% 直接缩放导出，可选格式质量。', 'image', '缩放 百分比 放大 缩小 图片', 'js/tools/pack-image4.js'),
+
+    /* 随机生成 10 款 */
+    tool('random-hex', '随机十六进制', '随机生成', '批量生成指定字节数的安全随机十六进制串。', 'dice', '随机 hex 十六进制 密钥 随机数', 'js/tools/pack-random4.js'),
+    tool('random-date', '随机日期', '随机生成', '在指定区间内生成随机日期或日期时间。', 'dice', '随机 日期 时间 区间 测试数据', 'js/tools/pack-random4.js'),
+    tool('random-name-cn', '随机中文姓名', '随机生成', '常见姓氏与名字组合，支持去重与 JSON 输出。', 'dice', '姓名 中文 随机 假数据 测试', 'js/tools/pack-random4.js'),
+    tool('random-company', '随机公司名', '随机生成', '地区 + 行业 + 后缀组合出公司名称。', 'dice', '公司 名称 随机 企业 占位', 'js/tools/pack-random4.js'),
+    tool('random-address', '随机地址', '随机生成', '按省市 + 道路 + 门牌生成虚构地址。', 'dice', '地址 随机 省市区 门牌 假数据', 'js/tools/pack-random4.js'),
+    tool('random-team', '随机分组', '随机生成', '名单一键分组，按组数或每组人数分配。', 'shuffle', '分组 随机 抽签 队伍 名单', 'js/tools/pack-random4.js'),
+    tool('random-gaussian', '正态分布随机数', '随机生成', 'Box-Muller 生成指定均值与标准差的样本。', 'dice', '正态分布 高斯 随机数 标准差 模拟', 'js/tools/pack-random4.js'),
+    tool('random-serial', '序列号生成', '随机生成', '可设字符集、长度、前缀与分隔的批量序列号。', 'dice', '序列号 券码 激活码 随机 生成', 'js/tools/pack-random4.js'),
+    tool('random-gradient', '随机渐变', '随机生成', '生成 linear-gradient CSS，附可视化预览。', 'palette', '渐变 gradient css 背景 随机', 'js/tools/pack-random4.js'),
+    tool('random-sentence', '随机短句', '随机生成', '词库组合生成文案占位句，两种风格可选。', 'type', '短句 文案 随机 占位 句子', 'js/tools/pack-random4.js'),
+
+    /* 开发辅助 16 款 */
+    tool('uuid-validate', 'UUID 校验', '开发辅助', '批量校验 UUID 并识别版本与变体。', 'shield', 'uuid 校验 版本 变体 guid', 'js/tools/pack-dev4.js'),
+    tool('semver-compare', '语义化版本比较', '开发辅助', '严格按 SemVer 2.0 比较，支持批量排序。', 'layers', 'semver 版本 比较 排序 语义化', 'js/tools/pack-dev4.js'),
+    tool('json-query', 'JSON 与 Query 互转', '开发辅助', '嵌套 JSON 拍平成 query string，或反向还原。', 'braces', 'json query 参数 转换 拍平', 'js/tools/pack-dev4.js'),
+    tool('commit-lint', 'Commit 信息校验', '开发辅助', '按 Conventional Commits 检查格式与长度。', 'terminal', 'commit 提交信息 规范 校验 conventional', 'js/tools/pack-dev4.js'),
+    tool('changelog-gen', 'CHANGELOG 生成', '开发辅助', '提交列表按 type 归类，输出标准变更日志。', 'list', 'changelog 变更日志 提交 版本', 'js/tools/pack-dev4.js'),
+    tool('code-stats', '代码行数统计', '开发辅助', '区分代码行、注释行、空行并算占比。', 'terminal', '代码 行数 统计 注释 空行', 'js/tools/pack-dev4.js'),
+    tool('indent-convert', '缩进风格转换', '开发辅助', 'Tab 与 2 / 4 / 8 空格互转，保持层级。', 'code', '缩进 tab 空格 转换 格式化', 'js/tools/pack-dev4.js'),
+    tool('url-join', 'URL 片段拼接', '开发辅助', '安全拼接路径，自动去重斜杠与相对路径。', 'link', 'url 拼接 路径 斜杠 join', 'js/tools/pack-dev4.js'),
+    tool('css-var-extract', 'CSS 变量提取', '开发辅助', '从样式表里抽出全部自定义属性并生成声明。', 'palette', 'css 变量 var 提取 主题', 'js/tools/pack-dev4.js'),
+    tool('api-mock', '字段定义生成 JSON', '开发辅助', '按字段与类型生成示例 JSON，可输出数组。', 'braces', 'mock 接口 字段 json 示例 假数据', 'js/tools/pack-dev4.js'),
+    tool('datauri-info', 'Data URI 解析', '开发辅助', '解析 MIME、编码方式、体积并预览图片。', 'image', 'datauri 解析 mime base64 体积', 'js/tools/pack-dev4.js'),
+    tool('regex-escape', '正则元字符转义', '开发辅助', '把用户输入安全转成正则字面量或反向还原。', 'regex', '正则 转义 元字符 字面量', 'js/tools/pack-dev4.js'),
+    tool('sql-where', 'SQL WHERE 生成', '开发辅助', '多条件行转 WHERE 子句，自动加引号。', 'database', 'sql where 条件 生成 查询', 'js/tools/pack-dev4.js'),
+    tool('number-format', '数字格式化', '开发辅助', '千分位、货币、百分比、万 / 亿缩写一键转换。', 'chart', '数字 格式化 千分位 货币 百分比', 'js/tools/pack-dev4.js'),
+    tool('env-example', '.env 生成示例', '开发辅助', '把真实配置转成可提交的 .env.example。', 'lock', 'env 环境变量 示例 密钥 打码', 'js/tools/pack-dev4.js'),
+    tool('path-normalize', '路径风格转换', '开发辅助', 'Windows 与 Unix 路径互转并规范化 ..', 'file', '路径 windows unix 斜杠 规范化', 'js/tools/pack-dev4.js'),
+
+    /* 网络工具 6 款 */
+    tool('ip-classify', 'IP 类型判断', '网络工具', '识别私有、回环、链路本地、组播与保留地址。', 'globe', 'ip 类型 私有 公网 回环 保留', 'js/tools/pack-net4.js'),
+    tool('ua-parse', 'User-Agent 解析', '网络工具', '从 UA 中拆出浏览器、内核、系统与设备。', 'eye', 'ua useragent 浏览器 设备 解析', 'js/tools/pack-net4.js'),
+    tool('mime-type', 'MIME 类型对照', '网络工具', '扩展名与 MIME 双向查询，覆盖常见格式。', 'file', 'mime 扩展名 类型 content-type', 'js/tools/pack-net4.js'),
+    tool('url-query-edit', 'URL 参数增删改', '网络工具', '用命令式语句修改 query，保留其余部分。', 'link', 'url 参数 query 修改 删除 重命名', 'js/tools/pack-net4.js'),
+    tool('ipv4-range', 'IPv4 网段换算', '网络工具', 'IP 与整数互转，算出网络、广播与可用范围。', 'network', 'ipv4 网段 cidr 掩码 广播 整数', 'js/tools/pack-net4.js'),
+    tool('cookie-builder', 'Set-Cookie 生成', '网络工具', '拼装带 SameSite / Secure / HttpOnly 的响应头。', 'server', 'cookie set-cookie samesite secure httponly', 'js/tools/pack-net4.js'),
+
+    /* 生活实用 10 款（新分类） */
+    tool('zodiac-sign', '星座查询', '生活实用', '按公历生日查星座、属性、守护星与性格。', 'calendar', '星座 生日 日期 火象 水象', 'js/tools/pack-life4.js'),
+    tool('chinese-zodiac', '生肖与干支', '生活实用', '由年份推生肖、干支与大致年龄。', 'calendar', '生肖 干支 属相 年龄 农历', 'js/tools/pack-life4.js'),
+    tool('blood-type', '血型遗传', '生活实用', '父母血型推算子女可能的血型与概率。', 'shield', '血型 遗传 abo 父母 子女', 'js/tools/pack-life4.js'),
+    tool('cooking-convert', '烹饪单位换算', '生活实用', '杯、勺、毫升、克按食材密度互换。', 'ruler', '烹饪 换算 杯 勺 克 毫升', 'js/tools/pack-life4.js'),
+    tool('sleep-cycle', '睡眠周期', '生活实用', '按 90 分钟周期推算最佳入睡或起床时间。', 'clock', '睡眠 周期 起床 入睡 90分钟', 'js/tools/pack-life4.js'),
+    tool('waist-hip', '腰臀比', '生活实用', '算腰臀比并按 WHO 标准评估代谢风险。', 'chart', '腰臀比 whr 腰围 健康 风险', 'js/tools/pack-life4.js'),
+    tool('shoe-size', '鞋码对照', '生活实用', '由脚长换算中国、欧、美、英、日码。', 'ruler', '鞋码 脚长 尺码 换算 eu us', 'js/tools/pack-life4.js'),
+    tool('anniversary', '纪念日计算', '生活实用', '在一起多少天、周年与下一个整百天。', 'calendar', '纪念日 天数 周年 恋爱 倒计时', 'js/tools/pack-life4.js'),
+    tool('caffeine', '咖啡因代谢', '生活实用', '按半衰期推算何时降到安全水平、几点后别喝。', 'chart', '咖啡因 代谢 半衰期 睡眠 咖啡', 'js/tools/pack-life4.js'),
+    tool('alcohol', '酒精代谢估算', '生活实用', 'Widmark 公式估算血液酒精浓度与代谢时间。', 'chart', '酒精 代谢 血液酒精 bac 解酒', 'js/tools/pack-life4.js'),
   ];
 
   /**
@@ -501,7 +620,7 @@
   }
 
   /* 分类展示顺序（"全部"固定在最前） */
-  var CATEGORY_ORDER = ['全部', '文本处理', '编码解码', '时间日期', '计算换算', '图片处理', '随机生成', '开发辅助', '网络工具'];
+  var CATEGORY_ORDER = ['全部', '文本处理', '编码解码', '时间日期', '计算换算', '图片处理', '随机生成', '开发辅助', '网络工具', '生活实用'];
   var CATEGORIES = CATEGORY_ORDER.filter(function (cat) {
     return cat === '全部' || TOOLS.some(function (t) { return t.category === cat; });
   });
@@ -889,7 +1008,7 @@
       '<section class="hero">' +
         '<p class="hero-eyebrow">纯前端 · 免登录 · 数据不出本机</p>' +
         '<h1 class="hero-title">集成工具大全</h1>' +
-        '<p class="hero-desc">' + TOOLS.length + ' 款高频小工具，覆盖文本处理、编码解码、时间日期、计算换算、图片处理、随机生成、开发辅助与网络工具。所有计算都在你的浏览器里完成，输入内容不会被发送到任何服务器。</p>' +
+        '<p class="hero-desc">' + TOOLS.length + ' 款高频小工具，覆盖' + CATEGORIES.filter(function (cat) { return cat !== '全部'; }).join('、') + '。所有计算都在你的浏览器里完成，输入内容不会被发送到任何服务器。</p>' +
         '<div class="hero-badges">' +
           '<span class="badge">本地运算</span>' +
           '<span class="badge">零上传</span>' +
