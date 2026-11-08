@@ -4,7 +4,7 @@
  * base16           十六进制编解码
  * base36           Base36 编解码
  * mime-encoded-word 邮件主题编码（RFC 2047）
- * html-entity      HTML 实体编解码
+ * varint           变长整数编解码（Protobuf Varint）
  * unicode-escape   Unicode 转义编解码
  * c-escape         C 风格字符串转义
  * uuencode         UUEncode 编解码
@@ -203,43 +203,60 @@
     });
   }
 
-  /* ------------------------------ 4. HTML 实体 ------------------------------ */
-  function renderHtmlEntity(root) {
+  /* ------------------------------ 4. Varint 变长整数 ------------------------------ */
+  function renderVarint(root) {
     K.text(root, {
-      uid: 'hment',
-      inputLabel: '输入内容',
+      uid: 'varint',
+      inputLabel: '整数（每行一个，编码）或十六进制字节串（解码）',
+      inputRows: 6,
       actionLabel: '转换',
       options: [
         { id: 'mode', label: '方向', type: 'select', value: 'encode', options: [
-          { value: 'encode', label: '文本 → 实体' },
-          { value: 'decode', label: '实体 → 文本' }
+          { value: 'encode', label: '整数 → Varint 十六进制' },
+          { value: 'decode', label: 'Varint 十六进制 → 整数' }
         ] },
-        { id: 'scope', label: '编码范围', type: 'select', value: 'special', options: [
-          { value: 'special', label: '仅特殊字符 < > & " \'' },
-          { value: 'nonascii', label: '特殊字符 + 非 ASCII' },
-          { value: 'all', label: '全部字符' }
-        ] }
+        { id: 'upper', label: '大写十六进制', type: 'checkbox', value: true }
       ],
-      sample: '<div class="tip">中文 & emoji 🎉</div>',
+      hint: 'Protobuf / levelDB 使用的变长整数：每字节 7 位有效数据，最高位标记「还有后续字节」。小数值只占 1 字节。',
+      sample: '300\n150\n1\n1000000',
       run: function (text, opt) {
-        if (opt.mode === 'decode') {
-          var area = document.createElement('textarea');
-          area.innerHTML = text;
-          var decoded = area.value;
-          return { output: decoded, note: '已解码命名实体与数字实体' };
+        if (opt.mode === 'encode') {
+          var lines = text.split(/\r?\n/).map(function (line) { return line.trim(); }).filter(Boolean);
+          var out = [];
+          for (var i = 0; i < lines.length; i += 1) {
+            var num = Number(lines[i]);
+            if (!isFinite(num) || num < 0 || Math.floor(num) !== num) return { error: '第 ' + (i + 1) + ' 行不是非负整数：' + lines[i] };
+            if (num > Number.MAX_SAFE_INTEGER) return { error: '数值超出安全整数范围：' + lines[i] };
+            var bytes = [];
+            var value = num;
+            do {
+              var byte = value % 128;
+              value = Math.floor(value / 128);
+              if (value > 0) byte += 128;
+              bytes.push(('0' + byte.toString(16)).slice(-2));
+            } while (value > 0);
+            if (opt.upper) bytes = bytes.map(function (b) { return b.toUpperCase(); });
+            out.push(bytes.join(' '));
+          }
+          return { output: out.join('\n'), note: '共编码 ' + lines.length + ' 个整数' };
         }
-        var out = Array.from(text).map(function (ch) {
-          var code = ch.codePointAt(0);
-          if (ch === '&') return '&amp;';
-          if (ch === '<') return '&lt;';
-          if (ch === '>') return '&gt;';
-          if (ch === '"') return '&quot;';
-          if (ch === "'") return '&#39;';
-          if (opt.scope === 'all') return '&#' + code + ';';
-          if (opt.scope === 'nonascii' && code > 127) return '&#' + code + ';';
-          return ch;
-        }).join('');
-        return { output: out, note: '使用数字实体，兼容性最好' };
+        var clean = text.replace(/0x/gi, '').replace(/[^0-9a-fA-F]/g, '');
+        if (!clean.length || clean.length % 2) return { error: '请粘贴完整的十六进制字节串' };
+        var values = [];
+        var current = 0;
+        var shift = 1;
+        for (var k = 0; k < clean.length; k += 2) {
+          var b = parseInt(clean.substr(k, 2), 16);
+          current += (b & 0x7f) * shift;
+          shift *= 128;
+          if ((b & 0x80) === 0) {
+            values.push(current);
+            current = 0;
+            shift = 1;
+          }
+        }
+        if (shift !== 1) return { error: '字节串结尾不完整（最后一个字节仍标记后续）' };
+        return { output: values.join('\n'), note: '共解出 ' + values.length + ' 个整数' };
       }
     });
   }
@@ -604,7 +621,7 @@
   window.ToolModules['base16'] = renderBase16;
   window.ToolModules['base36'] = renderBase36;
   window.ToolModules['mime-encoded-word'] = renderMimeEncodedWord;
-  window.ToolModules['html-entity'] = renderHtmlEntity;
+  window.ToolModules['varint'] = renderVarint;
   window.ToolModules['unicode-escape'] = renderUnicodeEscape;
   window.ToolModules['c-escape'] = renderCEscape;
   window.ToolModules['uuencode'] = renderUuencode;

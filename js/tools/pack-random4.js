@@ -6,7 +6,7 @@
  * random-name-cn   中文姓名生成
  * random-company   公司名生成
  * random-address   地址生成
- * random-team      随机分组
+ * random-template  随机模板填充
  * random-gaussian  正态分布随机数
  * random-serial    序列号 / 券码生成
  * random-gradient  随机渐变 CSS
@@ -208,45 +208,54 @@
     });
   }
 
-  /* ------------------------------ 6. 随机分组 ------------------------------ */
-  function renderRandomTeam(root) {
-    K.text(root, {
-      uid: 'randteam',
-      inputLabel: '参与者名单（每行一个）',
-      inputRows: 9,
-      actionLabel: '分组',
-      hideOutput: true,
-      options: [
-        { id: 'groups', label: '分组数量', type: 'number', value: 4, min: 1, max: 50, step: 1 },
-        { id: 'size', label: '每组人数（0 = 按组数均分）', type: 'number', value: 0, min: 0, step: 1 },
-        { id: 'label', label: '组名格式', type: 'select', value: 'num', options: [
-          { value: 'num', label: '第 1 组' },
-          { value: 'letter', label: 'A 组' },
-          { value: 'team', label: '第 1 队' }
-        ] }
+  /* ------------------------------ 6. 随机模板填充 ------------------------------ */
+  function renderRandomTemplate(root) {
+    K.form(root, {
+      uid: 'randtemplate',
+      actionLabel: '生成文本',
+      fields: [
+        { id: 'template', label: '模板（支持占位符）', type: 'textarea', rows: 3, wide: true, mono: true,
+          value: '{姓名} 来自 {城市}，就职于 {公司}，{日期} 完成注册，编号 {编号}。' },
+        { id: 'count', label: '生成条数', type: 'number', value: 5, min: 1, max: 100, step: 1 }
       ],
-      sample: '张三\n李四\n王五\n赵六\n钱七\n孙八\n周九\n吴十\n郑一\n王二',
-      run: function (text, opt) {
-        var people = text.split(/\r?\n/).map(function (line) { return line.trim(); }).filter(Boolean);
-        if (people.length < 2) return { error: '至少需要 2 位参与者' };
-        K.shuffle(people);
-        var groups = [];
-        var size = Number(opt.size) || 0;
-        if (size > 0) {
-          for (var i = 0; i < people.length; i += size) groups.push(people.slice(i, i + size));
-        } else {
-          var count = Math.max(1, Math.min(people.length, Math.round(Number(opt.groups) || 1)));
-          for (var g = 0; g < count; g += 1) groups.push([]);
-          people.forEach(function (person, index) { groups[index % count].push(person); });
+      hint: '可用占位符：{姓名} {城市} {公司} {日期} {编号} {数字} {邮箱} {手机} {单词}',
+      run: function (v) {
+        var count = Math.max(1, Math.min(100, Math.round(Number(v.count))));
+        var template = String(v.template || '');
+        if (!template.trim()) return { error: '请填写模板内容' };
+
+        var cities = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '西安', '南京', '苏州', '厦门', '长沙'];
+        function digits(n) {
+          var out = '';
+          for (var i = 0; i < n; i += 1) out += String(K.randomInt(10));
+          return out;
         }
-        var html = groups.map(function (group, index) {
-          var name = opt.label === 'letter'
-            ? String.fromCharCode(65 + index % 26) + ' 组'
-            : opt.label === 'team' ? '第 ' + (index + 1) + ' 队' : '第 ' + (index + 1) + ' 组';
-          return '<div class="field"><div class="label-row"><span class="label">' + name +
-            '（' + group.length + ' 人）</span></div><p class="hint" style="margin:0">' + K.esc(group.join('、')) + '</p></div>';
-        }).join('');
-        return { html: html, note: '共 ' + people.length + ' 人，分 ' + groups.length + ' 组（Fisher-Yates 洗牌）' };
+        function dateText() {
+          var start = Date.UTC(2023, 0, 1);
+          var end = Date.UTC(2026, 11, 31);
+          var stamp = start + K.randomInt(Math.floor((end - start) / 86400000)) * 86400000;
+          var d = new Date(stamp);
+          return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+        }
+        var lines = [];
+        for (var k = 0; k < count; k += 1) {
+          lines.push(template
+            .replace(/\{姓名\}/g, randomName())
+            .replace(/\{城市\}/g, K.pick(cities))
+            .replace(/\{公司\}/g, K.pick(CITY_PREFIX) + K.pick(BIZ) + K.pick(SUFFIX))
+            .replace(/\{日期\}/g, dateText())
+            .replace(/\{编号\}/g, 'NO' + digits(8))
+            .replace(/\{数字\}/g, String(K.randomInt(10000)))
+            .replace(/\{邮箱\}/g, 'user' + digits(4) + '@example.com')
+            .replace(/\{手机\}/g, '1' + (3 + K.randomInt(7)) + digits(9))
+            .replace(/\{单词\}/g, K.pick(['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel'])));
+        }
+        var text = lines.join('\n');
+        return {
+          html: '<pre class="code-block">' + K.esc(text) + '</pre>' +
+            '<div class="btn-row"><button type="button" class="btn ghost" data-copy="' + K.esc(text) + '">复制全部</button></div>',
+          note: '共生成 ' + count + ' 条，未识别的占位符会原样保留'
+        };
       }
     });
   }
@@ -443,7 +452,7 @@
   window.ToolModules['random-name-cn'] = renderRandomName;
   window.ToolModules['random-company'] = renderRandomCompany;
   window.ToolModules['random-address'] = renderRandomAddress;
-  window.ToolModules['random-team'] = renderRandomTeam;
+  window.ToolModules['random-template'] = renderRandomTemplate;
   window.ToolModules['random-gaussian'] = renderRandomGaussian;
   window.ToolModules['random-serial'] = renderRandomSerial;
   window.ToolModules['random-gradient'] = renderRandomGradient;

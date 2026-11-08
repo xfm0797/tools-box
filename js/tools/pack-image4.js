@@ -3,7 +3,7 @@
  * -----------------------------------------------------------------------------
  * img-info          图片信息速览
  * img-datauri       图片转 Data URI
- * img-placeholder   占位图生成
+ * img-print-size    按打印尺寸与 DPI 缩放
  * img-tint          单色蒙版（Tint）
  * img-frame         加相框
  * img-strip-meta    去除元数据
@@ -172,53 +172,60 @@
     });
   }
 
-  /* ------------------------------ 3. 占位图生成 ------------------------------ */
-  function renderImgPlaceholder(root) {
-    K.form(root, {
-      uid: 'imgph',
-      actionLabel: '生成并下载',
+  /* ------------------------------ 3. 按打印尺寸缩放 ------------------------------ */
+  function renderImgPrintSize(root) {
+    imageTool(root, {
+      uid: 'imgprint',
+      label: '选择需要按打印尺寸输出的图片',
       fields: [
-        { id: 'w', label: '宽度（px）', type: 'number', value: 1200, min: 1, max: 8000, step: 1 },
-        { id: 'h', label: '高度（px）', type: 'number', value: 630, min: 1, max: 8000, step: 1 },
-        { id: 'bg', label: '背景色', type: 'color', value: '#5b5bd6' },
-        { id: 'fg', label: '文字颜色', type: 'color', value: '#ffffff' },
-        { id: 'text', label: '文字（留空显示尺寸）', type: 'text', value: '', wide: true },
-        { id: 'radius', label: '圆角（px）', type: 'number', value: 0, min: 0, max: 200, step: 1 }
+        { id: 'widthCm', label: '打印宽度（cm）', type: 'number', value: 10, min: 0.5, max: 200, step: 0.1 },
+        { id: 'heightCm', label: '打印高度（cm）', type: 'number', value: 15, min: 0.5, max: 200, step: 0.1 },
+        { id: 'dpi', label: '目标 DPI', type: 'select', value: '300', options: [
+          { value: '72', label: '72（屏幕预览）' },
+          { value: '150', label: '150（普通打印）' },
+          { value: '300', label: '300（照片级）' },
+          { value: '600', label: '600（精细印刷）' }
+        ] },
+        { id: 'fit', label: '适配方式', type: 'select', value: 'contain', options: [
+          { value: 'contain', label: '完整显示（留白）' },
+          { value: 'cover', label: '填满画布（裁切）' }
+        ] },
+        { id: 'bg', label: '留白颜色', type: 'color', value: '#ffffff' }
       ],
-      hint: '生成的占位图可直接用于设计稿与前端开发。',
-      run: function (v) {
-        var w = Math.round(Number(v.w));
-        var h = Math.round(Number(v.h));
-        if (!(w > 0) || !(h > 0)) return { error: '宽高必须是正数' };
+      hint: '1 英寸 = 2.54 cm；像素 = 打印尺寸 ÷ 2.54 × DPI。照片冲印常用 300 DPI。',
+      run: function (v, state) {
+        var wCm = Number(v.widthCm);
+        var hCm = Number(v.heightCm);
+        var dpi = Number(v.dpi);
+        if (!(wCm > 0) || !(hCm > 0) || !(dpi > 0)) return { error: '请填写有效的打印尺寸与 DPI' };
+        var w = Math.round(wCm / 2.54 * dpi);
+        var h = Math.round(hCm / 2.54 * dpi);
+        if (w * h > 80000000) return { error: '目标像素过大（超过 8000 万），请降低 DPI 或尺寸' };
+
+        var img = state.handle.img;
         var canvas = K.canvas(w, h);
         var ctx = canvas.getContext('2d');
-        var text = String(v.text || '').trim() || (w + ' × ' + h);
-
-        if (Number(v.radius) > 0) {
-          var r = Math.min(Number(v.radius), w / 2, h / 2);
-          ctx.beginPath();
-          ctx.moveTo(r, 0);
-          ctx.lineTo(w - r, 0);
-          ctx.quadraticCurveTo(w, 0, w, r);
-          ctx.lineTo(w, h - r);
-          ctx.quadraticCurveTo(w, h, w - r, h);
-          ctx.lineTo(r, h);
-          ctx.quadraticCurveTo(0, h, 0, h - r);
-          ctx.lineTo(0, r);
-          ctx.quadraticCurveTo(0, 0, r, 0);
-          ctx.closePath();
-          ctx.clip();
-        }
+        ctx.imageSmoothingQuality = 'high';
         ctx.fillStyle = v.bg;
         ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = v.fg;
-        var size = Math.max(12, Math.round(Math.min(w, h) / 8));
-        ctx.font = '600 ' + size + 'px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, w / 2, h / 2);
-        K.saveCanvas(canvas, 'placeholder-' + w + 'x' + h + '.png');
-        return { html: preview(canvas), note: '已生成 ' + w + ' × ' + h + ' 占位图并开始下载' };
+
+        if (v.fit === 'cover') {
+          var scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+          var dw = img.naturalWidth * scale;
+          var dh = img.naturalHeight * scale;
+          ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+        } else {
+          var s2 = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+          var nw = img.naturalWidth * s2;
+          var nh = img.naturalHeight * s2;
+          ctx.drawImage(img, (w - nw) / 2, (h - nh) / 2, nw, nh);
+        }
+        K.saveCanvas(canvas, 'print-' + wCm + 'x' + hCm + 'cm-' + dpi + 'dpi.png');
+        return {
+          html: preview(canvas),
+          note: wCm + ' × ' + hCm + ' cm @ ' + dpi + ' DPI → ' + w + ' × ' + h + ' px' +
+            (img.naturalWidth < w ? '（原图偏小，放大后可能发虚）' : '')
+        };
       }
     });
   }
@@ -457,7 +464,7 @@
   /* ------------------------------ 注册 ------------------------------ */
   window.ToolModules['img-info'] = renderImgInfo;
   window.ToolModules['img-datauri'] = renderImgDataUri;
-  window.ToolModules['img-placeholder'] = renderImgPlaceholder;
+  window.ToolModules['img-print-size'] = renderImgPrintSize;
   window.ToolModules['img-tint'] = renderImgTint;
   window.ToolModules['img-frame'] = renderImgFrame;
   window.ToolModules['img-strip-meta'] = renderImgStripMeta;

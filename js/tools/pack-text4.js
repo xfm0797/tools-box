@@ -10,7 +10,7 @@
  * text-quote       引用包裹
  * text-chunk       按长度分块
  * invisible-chars  不可见字符清理
- * text-replace-batch 批量查找替换
+ * group-separator  字符分组分隔（卡号 / 编号）
  * line-diff-simple 行集合差异
  * cjk-pad          中英混排对齐
  * ========================================================================== */
@@ -441,45 +441,41 @@
     });
   }
 
-  /* ------------------------------ 10. 批量查找替换 ------------------------------ */
-  function renderTextReplaceBatch(root) {
+  /* ------------------------------ 10. 字符分组分隔 ------------------------------ */
+  function renderGroupSeparator(root) {
     K.text(root, {
-      uid: 'txtreplace',
-      inputLabel: '原文',
-      inputRows: 8,
-      actionLabel: '执行替换',
+      uid: 'groupsep',
+      inputLabel: '待分组内容（每行一条）',
+      inputRows: 6,
+      actionLabel: '分组',
       options: [
-        { id: 'rules', label: '替换规则（每行一条，格式：查找=替换）', type: 'textarea', rows: 5, wide: true, value: '苹果=Apple\n香蕉=Banana' },
-        { id: 'regex', label: '查找串按正则处理', type: 'checkbox', value: false },
-        { id: 'ignoreCase', label: '忽略大小写', type: 'checkbox', value: false },
-        { id: 'global', label: '替换所有匹配（否则只替换首个）', type: 'checkbox', value: true }
+        { id: 'size', label: '每组字符数', type: 'number', value: 4, min: 1, max: 32, step: 1 },
+        { id: 'sep', label: '分隔符', type: 'text', value: ' ' },
+        { id: 'from', label: '分组方向', type: 'select', value: 'left', options: [
+          { value: 'left', label: '从左往右（编号、券码）' },
+          { value: 'right', label: '从右往左（银行卡号习惯）' }
+        ] },
+        { id: 'clean', label: '先去掉非字母数字字符', type: 'checkbox', value: true }
       ],
-      sample: '今天买了苹果和香蕉，苹果很甜。',
+      hint: '银行卡号、快递单号、IMEI 常按 4 位分组，从右分组能让末组保持完整。',
+      sample: '6222020200112345678\nSF1234567890123',
       run: function (text, opt) {
-        var rules = String(opt.rules || '').split(/\r?\n/).filter(function (line) {
-          return line.trim() !== '' && line.indexOf('=') > 0;
-        });
-        if (!rules.length) return { error: '请至少填写一条「查找=替换」规则' };
-
-        var output = text;
-        var applied = 0;
-        rules.forEach(function (line) {
-          var pos = line.indexOf('=');
-          var from = line.slice(0, pos);
-          var to = line.slice(pos + 1);
-          var flags = (opt.global ? 'g' : '') + (opt.ignoreCase ? 'i' : '');
-          try {
-            var pattern = opt.regex ? new RegExp(from, flags) : new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
-            output = output.replace(pattern, to);
-            applied += 1;
-          } catch (error) {
-            /* 单条规则失效不影响其余规则 */
+        var size = Math.max(1, Math.min(32, Math.round(Number(opt.size))));
+        var sep = opt.sep === '' ? ' ' : opt.sep;
+        var lines = text.split(/\r?\n/).filter(function (line) { return line.trim() !== ''; });
+        var results = lines.map(function (line) {
+          var value = line.trim();
+          if (opt.clean) value = value.replace(/[^0-9A-Za-z\u4e00-\u9fff]/g, '');
+          if (opt.from === 'right') {
+            var parts = [];
+            for (var end = value.length; end > 0; end -= size) {
+              parts.unshift(value.slice(Math.max(0, end - size), end));
+            }
+            return parts.join(sep);
           }
+          return value.match(new RegExp('.{1,' + size + '}', 'g')).join(sep);
         });
-        return {
-          output: output,
-          note: '已应用 ' + applied + ' / ' + rules.length + ' 条规则' + (opt.regex ? '（正则模式）' : '')
-        };
+        return { output: results.join('\n'), note: '共处理 ' + lines.length + ' 行，每 ' + size + ' 位一组' };
       }
     });
   }
@@ -567,7 +563,7 @@
   window.ToolModules['text-quote'] = renderTextQuote;
   window.ToolModules['text-chunk'] = renderTextChunk;
   window.ToolModules['invisible-chars'] = renderInvisibleChars;
-  window.ToolModules['text-replace-batch'] = renderTextReplaceBatch;
+  window.ToolModules['group-separator'] = renderGroupSeparator;
   window.ToolModules['line-diff-simple'] = renderLineDiffSimple;
   window.ToolModules['cjk-pad'] = renderCjkPad;
 })();
