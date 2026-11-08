@@ -42,6 +42,7 @@
   Kit.num = function (value, digits) {
     if (!isFinite(value)) return '—';
     var fixed = Number(value).toFixed(digits === undefined ? 6 : digits);
+    if (fixed.indexOf('.') < 0) return fixed;
     return fixed.replace(/\.?0+$/, '') || '0';
   };
 
