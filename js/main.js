@@ -712,6 +712,9 @@
     tool('noise-db', '分贝与听力', '生活实用', '算安全暴露时长与日剂量，判断听力风险。', 'chart', '分贝 噪音 听力 耳机 暴露', 'js/tools/pack-life5.js'),
     tool('quake-energy', '震级能量换算', '生活实用', '震级换算焦耳与 TNT 当量，并比较两个震级。', 'chart', '震级 地震 能量 tnt 当量', 'js/tools/pack-life5.js'),
 
+    /* 生活实用 · 命理文化 */
+    tool('zhouyi-naming', '周易起名', '生活实用', '排八字取用神，按五格剖象打分推荐名字。', 'taiji', '起名 取名 周易 八字 五行 五格 姓名 宝宝 易经', 'js/tools/pack-fortune.js'),
+
   ];
 
   /**
@@ -781,7 +784,8 @@
     key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9"/><path d="M16.5 3.5l3.5 3.5"/><path d="M14 6l3 3"/>',
     server: '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><line x1="7" y1="7.5" x2="7.2" y2="7.5"/><line x1="7" y1="16.5" x2="7.2" y2="16.5"/>',
     cpu: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>',
-    chart: '<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8" rx="0.8"/><rect x="11" y="8" width="3" height="12" rx="0.8"/><rect x="16" y="4" width="3" height="16" rx="0.8"/>'
+    chart: '<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8" rx="0.8"/><rect x="11" y="8" width="3" height="12" rx="0.8"/><rect x="16" y="4" width="3" height="16" rx="0.8"/>',
+    taiji: '<circle cx="12" cy="12" r="9"/><path d="M12 3a4.5 4.5 0 0 1 0 9 4.5 4.5 0 0 0 0 9"/><circle cx="12" cy="7.5" r="1.1"/><circle cx="12" cy="16.5" r="1.1"/>'
   };
 
   /* =========================================================================

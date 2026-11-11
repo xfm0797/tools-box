@@ -420,7 +420,7 @@
         { id: 'cjkSpeed', label: '中文阅读速度（字 / 分钟）', type: 'number', value: 300, min: 50, step: 10 },
         { id: 'enSpeed', label: '英文阅读速度（词 / 分钟）', type: 'number', value: 220, min: 50, step: 10 }
       ],
-      sample: '集成工具大全提供 508 款工具。This paragraph mixes English words to demonstrate the mixed-language estimation. 所有计算均在本地完成。',
+      sample: '集成工具大全提供 509 款工具。This paragraph mixes English words to demonstrate the mixed-language estimation. 所有计算均在本地完成。',
       run: function (text, opt) {
         var cjk = (text.match(/[\u3400-\u9fff]/g) || []).length;
         var latinWords = (text.match(/[A-Za-z][A-Za-z'-]*/g) || []).length;
