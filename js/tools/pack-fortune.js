@@ -41,6 +41,19 @@
     '庞19 樊15 兰23 殷10 施9 陶16 洪10 翟14 安6 颜18 倪10 严20 牛4 温13 季8 俞9 章11 鲁15 葛15 伍6 ' +
     '韦9 申5 尤4 毕10 聂18 焦12 向6 柳9 邢11 路13 岳8 齐14 祁8 时10 舒12 屈8 项12 闵12 包5 左5';
 
+  // 复姓里出现、但单姓表未收录的字，同样按康熙笔画补上
+  var SURNAME_EXTRA_RAW =
+    '欧15 阳17 诸15 皇9 甫7 尉11 迟19 慕15 容10 宇6 长8 俟9 闻14 人2 赫14 连14 澹16 台5 冶7 宗8 政9 ' +
+    '濮17 淳12 屠12 轩10 辕17 狐9 离19 闾15 呼8 延7 微13 雕16 拓9 跋12 夹7 谷7 漆15 乐15 正5 壤20 ' +
+    '驷15 良7 干3 独16 孤8 宫10 门8 西6 叔8 太4 单12 上3 官8 ' +
+    '司5 徒10 空8 羊6 令5 百6 里7 南9 舌6 生5 东8 公4 丘5';
+
+  // 常见复姓：两字分别取笔画，天格与人格都按复姓规则算
+  var COMPOUND_RAW =
+    '欧阳 司马 上官 诸葛 东方 皇甫 尉迟 公孙 慕容 长孙 宇文 司徒 司空 夏侯 万俟 闻人 赫连 澹台 ' +
+    '公冶 宗政 濮阳 淳于 单于 太叔 申屠 公羊 轩辕 令狐 钟离 闾丘 百里 东郭 南门 呼延 羊舌 微生 ' +
+    '梁丘 左丘 东门 西门 南宫 独孤 拓跋 夹谷 漆雕 乐正 壤驷 公良 谷梁 段干';
+
   function parseSurname(raw) {
     var map = {};
     raw.split(/\s+/).forEach(function (item) {
@@ -50,7 +63,17 @@
     return map;
   }
 
-  var SURNAMES = parseSurname(SURNAME_RAW);
+  var SURNAMES = parseSurname(SURNAME_RAW + ' ' + SURNAME_EXTRA_RAW);
+
+  var COMPOUND = {};
+  COMPOUND_RAW.split(/\s+/).forEach(function (item) {
+    if (item.length === 2) COMPOUND[item] = true;
+  });
+
+  /** 单字康熙笔画，未收录返回 0 */
+  function charStroke(ch) {
+    return SURNAMES[ch] || 0;
+  }
 
   /* ------------------------------ 字库 --------------------------------
    * 每条格式：汉字 + 康熙笔画 + 性别(m 男 / f 女 / u 通用) + 类别
@@ -254,27 +277,24 @@
   /* ------------------------------ 五格与评分 ------------------------------ */
 
   /**
-   * @param {number} surnameStroke 姓的康熙笔画
+   * @param {Array} strokes 姓的逐字康熙笔画（单姓 1 个、复姓 2 个）
    * @param {Array} chars 名（1 或 2 个字对象）
    * @param {Array} favor 用神五行
    */
-  function scoreName(surnameStroke, chars, favor) {
-    var s = surnameStroke;
-    var tian, ren, di, zong, wai;
+  function scoreName(strokes, chars, favor) {
+    var compound = strokes.length === 2;
+    var s = compound ? strokes[0] + strokes[1] : strokes[0];
+    var nameSum = chars[0].stroke + (chars.length === 2 ? chars[1].stroke : 0);
 
-    if (chars.length === 2) {
-      tian = s + 1;
-      ren = s + chars[0].stroke;
-      di = chars[0].stroke + chars[1].stroke;
-      zong = s + chars[0].stroke + chars[1].stroke;
-      wai = zong - ren + 1;
-    } else {
-      tian = s + 1;
-      ren = s + chars[0].stroke;
-      di = chars[0].stroke + 1;
-      zong = s + chars[0].stroke;
-      wai = 2;
-    }
+    // 天格：单姓补虚位 1，复姓两字相加
+    var tian = compound ? s : s + 1;
+    // 人格：姓的末字 + 名的首字
+    var ren = (compound ? strokes[1] : strokes[0]) + chars[0].stroke;
+    // 地格：单名补虚位 1
+    var di = chars.length === 2 ? chars[0].stroke + chars[1].stroke : chars[0].stroke + 1;
+    var zong = s + nameSum;
+    // 外格：总格 − 人格 + 1；单姓单名无所谓副运，古法固定取 2
+    var wai = (chars.length === 1 && !compound) ? 2 : zong - ren + 1;
 
     var cells = [
       { label: '天格', value: tian },
@@ -310,8 +330,9 @@
     var penalty = 0;
     if (chars.length === 2 && chars[0].cat === chars[1].cat) penalty = 8;
 
-    // 单名外格固定为 2（凶），五格天然少 12 分，按 88 分制归一化
-    var denominator = chars.length === 1 ? 88 : 100;
+    // 单姓单名外格固定为 2（凶），五格天然少 12 分，按 88 分制归一化；
+    // 复姓单名的外格是「姓首字 + 1」，随笔画变化，正常按 100 分制算
+    var denominator = (chars.length === 1 && strokes.length === 1) ? 88 : 100;
     var total = Math.max(0, Math.min(100,
       Math.round((wugeScore + sancaiScore + wxScore - penalty) / denominator * 100)));
 
@@ -339,17 +360,19 @@
     });
   }
 
-  function buildCandidates(surname, surnameStroke, sex, favor, single) {
+  function buildCandidates(surname, strokes, sex, favor, single) {
     var list = [];
     var seen = {};
+    var surnameChars = surname.split('');
 
     function push(chars) {
       var key = chars.map(function (c) { return c.ch; }).join('');
       if (seen[key]) return;
       seen[key] = true;
-      if (chars.some(function (c) { return c.ch === surname; })) return;
+      // 名里不能出现姓中的任何一个字（复姓要逐字比对）
+      if (chars.some(function (c) { return surnameChars.indexOf(c.ch) >= 0; })) return;
       if (chars.length === 2 && chars[0].ch === chars[1].ch) return;
-      var result = scoreName(surnameStroke, chars, favor);
+      var result = scoreName(strokes, chars, favor);
       list.push({
         name: surname + key,
         chars: chars,
@@ -467,9 +490,11 @@
       K.kv([
         { key: '日主强弱', value: strengthText, mono: false, copy: false },
         { key: '补益五行', value: bazi.favor.join('、') + '（取名优先取该行字）', mono: false, copy: false },
-        { key: '笔画基准', value: '康熙笔画；姓「' + rows.surname + '」' +
-            (rows.guessed ? '未收录，暂按 ' + rows.surnameStroke + ' 画估算，请在「姓的笔画」手动填写' :
-              '按 ' + rows.surnameStroke + ' 画计'), mono: false, copy: false }
+        { key: '笔画基准', value: '康熙笔画；' + rows.surname.split('').map(function (ch, i) {
+            return ch + ' ' + rows.strokes[i] + ' 画';
+          }).join(' + ') + (rows.compound ? '（合计 ' + rows.surnameStroke + ' 画）' : '') +
+            (rows.guessed.length ? '，其中「' + rows.guessed.join('、') + '」未收录、按 8 画估算' : ''),
+          mono: false, copy: false }
       ]) +
       '</div>';
 
@@ -491,7 +516,8 @@
     });
 
     html += '<div class="result-block">' +
-      '<h4 class="sub-title">推荐名字（' + (single ? '单名' : '双名') + ' · 按综合分排序）</h4>' +
+      '<h4 class="sub-title">推荐名字（' + (rows.compound ? '复姓 · ' : '') + (single ? '单名' : '双名') +
+      ' · 共 ' + (rows.surname.length + (single ? 1 : 2)) + ' 字 · 按综合分排序）</h4>' +
       K.table(['姓名', '笔画', '五格 天·人·地·总·外', '三才', '评分'], nameRows) +
       '<p class="hint" style="margin:8px 0 0">' +
       '评分 = 五格数理 60 + 三才生克 20 + 用神匹配 20，两字同部首再扣 8。' +
@@ -508,8 +534,8 @@
     K.form(root, {
       uid: 'zhouyi',
       fields: [
-        { id: 'surname', label: '姓氏（单字）', type: 'text', value: '王', placeholder: '如 王' },
-        { id: 'stroke', label: '姓的笔画（选填）', type: 'number', value: '', placeholder: '留空自动查', min: 1, max: 40 },
+        { id: 'surname', label: '姓氏（单姓或复姓）', type: 'text', value: '王', placeholder: '如 王 / 欧阳' },
+        { id: 'stroke', label: '姓首字笔画（选填）', type: 'number', value: '', placeholder: '留空自动查', min: 1, max: 40 },
         { id: 'sex', label: '性别', type: 'select', value: 'm', options: [
           { value: 'm', label: '男' },
           { value: 'f', label: '女' }
@@ -531,16 +557,20 @@
       ],
       actionLabel: '排盘取名',
       hint: '四柱按公历生日推算：年柱以立春分界，月柱按节气，日柱用儒略日，时柱用五鼠遁。' +
-        '节气日期取常年近似值，边界日（每月 4—8 日）可能差一天。名字按康熙笔画算五格，' +
+        '节气日期取常年近似值，边界日（每月 4—8 日）可能差一天。名字按康熙笔画算五格；' +
+        '姓氏支持复姓（欧阳、司马、上官等），天格取姓两字之和、人格取姓末字加名首字；' +
+        '复姓第二字的笔画自动查表，手填值只覆盖首字。' +
         '全部结果属民俗文化范畴，不作命理断语。',
       sample: function (fill) {
         fill({ surname: '王', stroke: '', sex: 'm', date: '1995-08-15', time: '08:30', count: 'two', favor: 'auto' });
       },
       run: function (v) {
-        var surname = String(v.surname || '').trim();
+        var surname = String(v.surname || '').replace(/\s+/g, '');
         if (!surname) return { error: '请填写姓氏' };
-        if (surname.length > 1) return { error: '目前只支持单字姓，复姓（欧阳、司马等）暂未内置笔画表' };
-        if (!/^[\u4e00-\u9fa5]$/.test(surname)) return { error: '姓氏需为单个汉字' };
+        if (!/^[\u4e00-\u9fa5]+$/.test(surname)) return { error: '姓氏只能填汉字，不含字母、数字或符号' };
+        if (surname.length > 2) {
+          return { error: '姓氏最多两字；复姓（欧阳、司马、上官等）填两字即可，三字以上请拆分' };
+        }
 
         var dateParts = String(v.date || '').split('-');
         var timeParts = String(v.time || '').split(':');
@@ -558,16 +588,20 @@
         var bazi = calcBazi(y, m, d, hh, mi);
         if (!bazi) return { error: '出生日期需在 1900—2100 年之间' };
 
-        // 笔画：手填优先，其次查内置表，都没有按 8 画兜底
+        // 笔画：逐字查表；手填值只覆盖首字（复姓第二字仍走内置表）；都没有按 8 画兜底
         var manual = parseInt(v.stroke, 10);
-        var surnameStroke = SURNAMES[surname];
-        var guessed = false;
-        if (isFinite(manual) && manual > 0) {
-          surnameStroke = Math.min(manual, 40);
-        } else if (!surnameStroke) {
-          surnameStroke = 8;
-          guessed = true;
-        }
+        var strokes = surname.split('').map(charStroke);
+        if (isFinite(manual) && manual > 0) strokes[0] = Math.min(manual, 40);
+        var guessed = [];
+        strokes.forEach(function (value, i) {
+          if (!value) {
+            strokes[i] = 8;
+            guessed.push(surname.charAt(i));
+          }
+        });
+        var compound = strokes.length === 2;
+        var surnameStroke = strokes.reduce(function (sum, value) { return sum + value; }, 0);
+        var notInList = compound && !COMPOUND[surname];
 
         var favor = bazi.favor.slice();
         if (v.favor && v.favor !== 'auto') {
@@ -578,13 +612,15 @@
         }
 
         var single = v.count === 'one';
-        var list = buildCandidates(surname, surnameStroke, v.sex, favor, single);
+        var list = buildCandidates(surname, strokes, v.sex, favor, single);
         if (!list.length) return { error: '没有生成候选名字，请调整性别或五行偏好' };
 
         var picked = diversify(list, 10);
         var html = buildReport(bazi, {
           surname: surname,
+          strokes: strokes,
           surnameStroke: surnameStroke,
+          compound: compound,
           guessed: guessed,
           list: picked
         }, single);
@@ -592,7 +628,8 @@
         var best = picked[0];
         var note = '共评估 ' + list.length + ' 组组合，最高分「' + best.name + '」' +
           best.detail.score + ' 分（' + best.detail.sancai + ' 三才）' +
-          (guessed ? '；姓「' + surname + '」未收录，按 8 画估算，可在「姓的笔画」填康熙笔画后重算' : '');
+          (guessed.length ? '；姓中「' + guessed.join('、') + '」未收录，暂按 8 画估算' : '') +
+          (notInList ? '；「' + surname + '」不在常见复姓表，已按双字姓计算' : '');
 
         return { html: html, note: note };
       }

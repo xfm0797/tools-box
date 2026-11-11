@@ -713,7 +713,7 @@
     tool('quake-energy', '震级能量换算', '生活实用', '震级换算焦耳与 TNT 当量，并比较两个震级。', 'chart', '震级 地震 能量 tnt 当量', 'js/tools/pack-life5.js'),
 
     /* 生活实用 · 命理文化 */
-    tool('zhouyi-naming', '周易起名', '生活实用', '排八字取用神，按五格剖象打分推荐名字。', 'taiji', '起名 取名 周易 八字 五行 五格 姓名 宝宝 易经', 'js/tools/pack-fortune.js'),
+    tool('zhouyi-naming', '周易起名', '生活实用', '排八字取用神，按五格剖象打分推荐名字，支持单姓与复姓。', 'taiji', '起名 取名 周易 八字 五行 五格 姓名 宝宝 易经 复姓 欧阳 司马', 'js/tools/pack-fortune.js'),
     tool('marriage-match', '姻缘测定', '生活实用', '按生肖、夫妻宫、日主与五行互补合婚打分。', 'heart', '姻缘 合婚 配对 八字 生肖 星座 恋爱 婚姻 测姻缘', 'js/tools/pack-fortune.js'),
 
   ];
