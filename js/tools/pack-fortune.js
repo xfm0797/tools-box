@@ -599,5 +599,350 @@
     });
   }
 
+  /* ==========================================================================
+   * 姻缘测定
+   * --------------------------------------------------------------------------
+   * 合婚分五路看，加权合成姻缘指数（满分 100）：
+   *   年支（生肖）20 · 日支（夫妻宫）25 · 日主五行 20 · 五行互补 20 · 日干五合 15
+   * 只看年月日三柱，时柱不参与，所以不需要填出生时辰。
+   * 另附西方占星的太阳星座配对作参考，单独一块，不计入总分。
+   * ======================================================================== */
+
+  var ZODIAC = '鼠牛虎兔龙蛇马羊猴鸡狗猪'.split('');
+
+  // 地支关系（索引：子 0 … 亥 11）
+  var PAIR_LIUHE = ['0-1', '2-11', '3-10', '4-9', '5-8', '6-7'];      // 子丑 寅亥 卯戌 辰酉 巳申 午未
+  var PAIR_LIUHAI = ['0-7', '1-6', '2-5', '3-4', '8-11', '9-10'];     // 子未 丑午 寅巳 卯辰 申亥 酉戌
+  var PAIR_SANHE = [[8, 0, 4], [11, 3, 7], [2, 6, 10], [5, 9, 1]];    // 申子辰 亥卯未 寅午戌 巳酉丑
+  var PAIR_XING = ['0-3', '2-5', '5-8', '2-8', '1-10', '10-7', '1-7']; // 子卯 寅巳 巳申 寅申 丑戌 戌未 丑未
+  var SELF_XING = [4, 6, 9, 11];                                       // 辰午酉亥自刑
+
+  function branchRelation(a, b) {
+    // 先处理同支：同支不可能是六合/三合，只有辰午酉亥自刑
+    if (a === b) return SELF_XING.indexOf(a) >= 0 ? 'xing' : 'same';
+    var lo = Math.min(a, b);
+    var hi = Math.max(a, b);
+    if (PAIR_LIUHE.indexOf(lo + '-' + hi) >= 0) return 'liuhe';
+    for (var i = 0; i < PAIR_SANHE.length; i++) {
+      if (PAIR_SANHE[i].indexOf(a) >= 0 && PAIR_SANHE[i].indexOf(b) >= 0) return 'sanhe';
+    }
+    if ((a - b + 12) % 12 === 6) return 'chong';
+    if (PAIR_LIUHAI.indexOf(lo + '-' + hi) >= 0) return 'hai';
+    if (PAIR_XING.indexOf(lo + '-' + hi) >= 0) return 'xing';
+    return 'none';
+  }
+
+  var REL_TEXT = {
+    liuhe: '六合', sanhe: '三合', same: '同支',
+    none: '平（无合无冲）', hai: '相害', xing: '相刑', chong: '相冲'
+  };
+
+  function zodiacScore(rel) {
+    return { liuhe: 20, sanhe: 18, same: 14, none: 12, hai: 7, xing: 6, chong: 3 }[rel];
+  }
+
+  function palaceScore(rel) {
+    return { liuhe: 25, sanhe: 22, same: 16, none: 15, hai: 9, xing: 8, chong: 4 }[rel];
+  }
+
+  /** 统计前三柱六个字的五行（不看时柱） */
+  function countThreePillars(pillars) {
+    var c = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+    for (var i = 0; i < 3; i++) {
+      c[STEM_WX[pillars[i].stem]] += 1;
+      c[BRANCH_WX[pillars[i].branch]] += 1;
+    }
+    return c;
+  }
+
+  /** 五行互补：各自缺的行，对方是否补得上 */
+  function wuxingFit(a, b) {
+    var lackA = WX.filter(function (w) { return a[w] === 0; });
+    var lackB = WX.filter(function (w) { return b[w] === 0; });
+    if (!lackA.length && !lackB.length) {
+      return { score: 16, lackA: lackA, lackB: lackB, filled: 0, total: 0,
+        note: '双方五行俱全，没有明显缺口，互补性一般但也不冲' };
+    }
+    var filled = 0;
+    lackA.forEach(function (w) { if (b[w] >= 1) filled += 1; });
+    lackB.forEach(function (w) { if (a[w] >= 1) filled += 1; });
+    var total = lackA.length + lackB.length;
+    return {
+      score: Math.round(6 + 14 * (filled / total)),
+      lackA: lackA,
+      lackB: lackB,
+      filled: filled,
+      total: total,
+      note: '你缺 ' + (lackA.join('、') || '无') + '，TA 缺 ' + (lackB.join('、') || '无') +
+        '；互补 ' + filled + '/' + total + ' 项'
+    };
+  }
+
+  /** 日干五合：甲己、乙庚、丙辛、丁壬、戊癸 */
+  function stemHe(a, b) {
+    return a !== b && a % 5 === b % 5;
+  }
+
+  /* ------------------------------ 星座（参考） ------------------------------ */
+
+  var SIGN_TABLE = [
+    [1, 20, '水瓶', '风'], [2, 19, '双鱼', '水'], [3, 21, '白羊', '火'],
+    [4, 20, '金牛', '土'], [5, 21, '双子', '风'], [6, 22, '巨蟹', '水'],
+    [7, 23, '狮子', '火'], [8, 23, '处女', '土'], [9, 23, '天秤', '风'],
+    [10, 24, '天蝎', '水'], [11, 23, '射手', '火'], [12, 22, '摩羯', '土']
+  ];
+
+  function sunSign(m, d) {
+    var row = SIGN_TABLE[m - 1];
+    if (d >= row[1]) return { name: row[2], element: row[3] };
+    var prev = SIGN_TABLE[(m - 2 + 12) % 12];
+    return { name: prev[2], element: prev[3] };
+  }
+
+  var ELEMENT_SCORE = {
+    火火: 88, 土土: 88, 风风: 88, 水水: 88,
+    火风: 85, 风火: 85, 土水: 85, 水土: 85,
+    火水: 62, 水火: 62, 土风: 62, 风土: 62,
+    火土: 58, 土火: 58, 风水: 58, 水风: 58
+  };
+
+  var ELEMENT_NOTE = {
+    火火: '同为火象，都爱热闹、行动力强，缺点是容易一起冲动',
+    土土: '同为土象，务实稳定，日子过得踏实但需要有人制造点新鲜感',
+    风风: '同为风象，聊得来、朋友多，容易停在精神层面',
+    水水: '同为水象，情绪共鸣强，要小心一起沉进情绪里',
+    火风: '火遇风，互相点燃，一个敢想一个会说，节奏很合',
+    土水: '土能蓄水，一个给安全感一个给柔软，是最稳的组合之一',
+    火水: '火与水天生拉扯，一个要热烈一个要深度，靠理解才能走下去',
+    土风: '土要落地、风要自由，节奏差得比较多，需要各自留空间',
+    火土: '火急土慢，一个想马上做、一个要先想清楚',
+    风水: '风轻水重，表达方式差得远，容易一个说一个猜'
+  };
+
+  /* ------------------------------ 姻缘评分 ------------------------------ */
+
+  function levelOf(total) {
+    if (total >= 85) return { text: '上等姻缘', color: '#dc2626' };
+    if (total >= 70) return { text: '良好', color: '#ea580c' };
+    if (total >= 55) return { text: '中等', color: '#ca8a04' };
+    if (total >= 40) return { text: '需磨合', color: '#2563eb' };
+    return { text: '差异较大', color: '#475569' };
+  }
+
+  function matchPair(aBazi, bBazi) {
+    // 1. 生肖（年支）
+    var relZodiac = branchRelation(aBazi.pillars[0].branch, bBazi.pillars[0].branch);
+    var sZodiac = zodiacScore(relZodiac);
+
+    // 2. 夫妻宫（日支）
+    var relPalace = branchRelation(aBazi.pillars[2].branch, bBazi.pillars[2].branch);
+    var sPalace = palaceScore(relPalace);
+
+    // 3. 日主五行
+    var wa = aBazi.dayWx;
+    var wb = bBazi.dayWx;
+    var relStem;
+    var sStem;
+    if (wa === wb) {
+      relStem = 'same';
+      sStem = 16;
+    } else if (SHENG[wa] === wb || SHENG[wb] === wa) {
+      relStem = 'sheng';
+      sStem = 20;
+    } else {
+      relStem = 'ke';
+      sStem = 9;
+    }
+
+    // 4. 五行互补
+    var fit = wuxingFit(countThreePillars(aBazi.pillars), countThreePillars(bBazi.pillars));
+
+    // 5. 日干五合
+    var he = stemHe(aBazi.dayStem, bBazi.dayStem);
+    var sHe = he ? 15 : (aBazi.dayStem === bBazi.dayStem ? 10 : 7);
+
+    var total = sZodiac + sPalace + sStem + fit.score + sHe;
+
+    // 各维度文案
+    var noteZodiac = '你属' + ZODIAC[aBazi.pillars[0].branch] + '（' + BRANCHES[aBazi.pillars[0].branch] +
+      '），TA 属' + ZODIAC[bBazi.pillars[0].branch] + '（' + BRANCHES[bBazi.pillars[0].branch] + '），' +
+      REL_TEXT[relZodiac];
+
+    var notePalace = '日支为夫妻宫：' + BRANCHES[aBazi.pillars[2].branch] + ' 与 ' +
+      BRANCHES[bBazi.pillars[2].branch] + '，' + REL_TEXT[relPalace];
+
+    var noteStem;
+    if (relStem === 'sheng') {
+      noteStem = '你是' + aBazi.dayPillar.charAt(0) + wa + '，TA 是' + bBazi.dayPillar.charAt(0) + wb +
+        '，' + (SHENG[wa] === wb ? wa + '生' + wb : wb + '生' + wa) + '，互相滋养';
+    } else if (relStem === 'same') {
+      noteStem = '同为' + wa + '命，气质相近，像照镜子，默契但也容易同进同退';
+    } else {
+      noteStem = '你是' + aBazi.dayPillar.charAt(0) + wa + '，TA 是' + bBazi.dayPillar.charAt(0) + wb +
+        '，' + (KE[wa] === wb ? wa + '克' + wb : wb + '克' + wa) + '，需要靠沟通化解';
+    }
+
+    var noteHe = he
+      ? '日干 ' + STEMS[aBazi.dayStem] + STEMS[bBazi.dayStem] + ' 相合，是传统合婚里的加分项'
+      : (aBazi.dayStem === bBazi.dayStem ? '日干相同（比肩），说不上合也不算冲' : '日干无五合关系');
+
+    return {
+      total: total,
+      level: levelOf(total),
+      rows: [
+        { name: '生肖（年支）', score: sZodiac, max: 20, note: noteZodiac },
+        { name: '夫妻宫（日支）', score: sPalace, max: 25, note: notePalace },
+        { name: '日主五行', score: sStem, max: 20, note: noteStem },
+        { name: '五行互补', score: fit.score, max: 20, note: fit.note },
+        { name: '日干五合', score: sHe, max: 15, note: noteHe }
+      ],
+      relations: { zodiac: relZodiac, palace: relPalace, stem: relStem, he: he }
+    };
+  }
+
+  /** 按最弱的环节给建议，避免一律「多沟通」 */
+  function adviceOf(result) {
+    var tips = [];
+    var r = result.relations;
+
+    if (r.palace === 'chong') {
+      tips.push('日支相冲，两个人对「日子怎么过」的默认设定差得远，小事上先立规矩比事后争论省力。');
+    } else if (r.palace === 'hai' || r.palace === 'xing') {
+      tips.push('夫妻宫带刑害，容易在同一个点上反复别扭，把最介意的那件事摊开讲一次，比反复试探有用。');
+    } else if (r.palace === 'liuhe' || r.palace === 'sanhe') {
+      tips.push('夫妻宫相合，日常磨合成本低，别把这份顺应当成理所当然就好。');
+    } else {
+      tips.push('夫妻宫平顺无冲，没有天然加成也没有硬伤，能走多远主要看两个人怎么经营。');
+    }
+
+    if (r.zodiac === 'chong') {
+      tips.push('生肖相冲只在民俗层面成立，真正影响相处的是节奏差异：一个急一个稳时，先说结论再说理由。');
+    }
+
+    if (r.stem === 'ke') {
+      tips.push('日主相克，容易一方总在纠正另一方，试着把「你应该」换成「我需要」。');
+    }
+
+    if (!r.he) {
+      tips.push('日干没有五合，默契靠相处积累而不是天然带出来，共同的长期目标比一时热情更重要。');
+    }
+
+    if (result.rows[3].score < 12) {
+      tips.push('五行互补偏弱，各自的短板别指望对方自动补上，必要时各自找出口。');
+    }
+
+    if (!tips.length) {
+      tips.push('几项都处在顺的位置，剩下的是把日子过细，别让合拍变成忽略对方。');
+    }
+    return tips.slice(0, 3);
+  }
+
+  /* ------------------------------ 姻缘渲染 ------------------------------ */
+
+  function renderMarriage(root) {
+    K.form(root, {
+      uid: 'marriage',
+      fields: [
+        { id: 'aDate', label: '你的生日', type: 'date', value: '1995-08-15' },
+        { id: 'bDate', label: 'TA 的生日', type: 'date', value: '1996-11-02' }
+      ],
+      actionLabel: '测姻缘',
+      hint: '合婚只看年月日三柱：年支看生肖、日支看夫妻宫、日干看日主，所以不需要填出生时辰。' +
+        '指数由五项加权而成，属于传统民俗算法，不构成任何感情判断，两个人怎么相处永远比一张表更重要。',
+      sample: function (fill) {
+        fill({ aDate: '1995-08-15', bDate: '1996-11-02' });
+      },
+      run: function (v) {
+        function parseDate(str) {
+          var parts = String(str || '').split('-');
+          if (parts.length !== 3) return null;
+          var y = parseInt(parts[0], 10);
+          var m = parseInt(parts[1], 10);
+          var d = parseInt(parts[2], 10);
+          if (!isFinite(y) || !isFinite(m) || !isFinite(d)) return null;
+          return { y: y, m: m, d: d };
+        }
+
+        var pa = parseDate(v.aDate);
+        var pb = parseDate(v.bDate);
+        if (!pa) return { error: '请填写你的生日' };
+        if (!pb) return { error: '请填写 TA 的生日' };
+
+        var aBazi = calcBazi(pa.y, pa.m, pa.d, 12, 0);
+        var bBazi = calcBazi(pb.y, pb.m, pb.d, 12, 0);
+        if (!aBazi || !bBazi) return { error: '生日需在 1900—2100 年之间' };
+
+        var result = matchPair(aBazi, bBazi);
+        var signA = sunSign(pa.m, pa.d);
+        var signB = sunSign(pb.m, pb.d);
+        var signScore = ELEMENT_SCORE[signA.element + signB.element] || 70;
+
+        var html = '';
+
+        // 总分
+        html += '<div class="result-block">' +
+          K.stats([
+            { html: '<span style="color:' + result.level.color + '">' + result.total + '</span>', label: '姻缘指数' },
+            { html: '<span style="color:' + result.level.color + '">' + result.level.text + '</span>', label: '综合等级' },
+            { value: ZODIAC[aBazi.pillars[0].branch] + ' × ' + ZODIAC[bBazi.pillars[0].branch], label: '生肖' },
+            { value: result.relations.he ? '有' : '无', label: '日干五合' }
+          ]) + '</div>';
+
+        // 双方三柱
+        var heads = ['你的' + pa.m + '月' + pa.d + '日', 'TA 的' + pb.m + '月' + pb.d + '日'];
+        html += '<div class="result-block">' +
+          '<h4 class="sub-title">双方三柱</h4>' +
+          K.table(['对象', '年柱', '月柱', '日柱'], [
+            [{ html: '<b>你</b>' }, aBazi.yearPillar, aBazi.monthPillar, aBazi.dayPillar + '（日主 ' + STEMS[aBazi.dayStem] + '）'],
+            [{ html: '<b>TA</b>' }, bBazi.yearPillar, bBazi.monthPillar, bBazi.dayPillar + '（日主 ' + STEMS[bBazi.dayStem] + '）']
+          ]) +
+          '</div>';
+
+        // 五维得分
+        var scoreRows = result.rows.map(function (row) {
+          var percent = row.score / row.max * 100;
+          return [
+            row.name,
+            { html: bar(percent, 'var(--primary)') + ' <span class="mono" style="margin-left:6px">' +
+                row.score + '/' + row.max + '</span>' },
+            row.note
+          ];
+        });
+
+        html += '<div class="result-block">' +
+          '<h4 class="sub-title">五项拆解</h4>' +
+          K.table(['维度', '得分', '依据'], scoreRows) +
+          '</div>';
+
+        // 建议
+        var tips = adviceOf(result);
+        html += '<div class="result-block">' +
+          '<h4 class="sub-title">相处提示</h4>' +
+          '<ul style="margin:0;padding-left:20px;line-height:1.85">' +
+          tips.map(function (tip) { return '<li>' + K.esc(tip) + '</li>'; }).join('') +
+          '</ul></div>';
+
+        // 星座参考
+        html += '<div class="result-block">' +
+          '<h4 class="sub-title">星座参考（不计入总分）</h4>' +
+          K.kv([
+            { key: '你', value: '太阳' + signA.name + '座（' + signA.element + '象）', mono: false, copy: false },
+            { key: 'TA', value: '太阳' + signB.name + '座（' + signB.element + '象）', mono: false, copy: false },
+            { key: '元素配对', value: signScore + ' 分', mono: false, copy: false },
+            { key: '一句话', value: ELEMENT_NOTE[signA.element + signB.element] || '元素互补一般，靠相处补', mono: false, copy: false }
+          ]) +
+          '</div>';
+
+        var best = result.rows.slice().sort(function (p, q) {
+          return (q.score / q.max) - (p.score / p.max);
+        })[0];
+        var note = '姻缘指数 ' + result.total + '（' + result.level.text + '），最顺的一项是' + best.name;
+
+        return { html: html, note: note };
+      }
+    });
+  }
+
   window.ToolModules['zhouyi-naming'] = renderNaming;
+  window.ToolModules['marriage-match'] = renderMarriage;
 })();
